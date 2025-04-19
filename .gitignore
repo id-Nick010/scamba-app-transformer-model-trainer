@@ -4,3 +4,4 @@ logs/
 mlruns/
 saved_model/
 saved_tokenizer/
+tflite_models/

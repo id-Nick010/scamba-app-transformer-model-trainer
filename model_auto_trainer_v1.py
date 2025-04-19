@@ -17,8 +17,8 @@ import random
 
 import argparse
 
-MAX_LENGTH = 12
-BATCH_SIZE = 16
+MAX_LENGTH = 150
+BATCH_SIZE = 64
 EPOCHS = 100
 
 randnum = 10#42
@@ -85,7 +85,7 @@ def model_abbre(model_name):
     
 def run_training(hp, model_name):
     mlflow.set_experiment("Second Evaluation")
-    run_name = f"{model_abbre(model_name)}__lr{hp['learning_rate']}_ep{hp['epochs']}_bs{hp['batch_size']}"
+    run_name = f"{hp["exp_desc"]}_{model_abbre(model_name)}__lr{hp['learning_rate']}_ep{hp['epochs']}_bs{hp['batch_size']}"
     with mlflow.start_run(run_name=run_name):
         mlflow.log_params(hp)
         mlflow.set_tag("model_name", model_name)
@@ -114,12 +114,11 @@ def run_training(hp, model_name):
         
             # Configuration
         MODEL_NAME = model_name # also for tokenizer
-        
-                                         # 'bert-base-uncased' (bert)
-                                         # 'bert-base-multilingual-cased' (mBERT)
-                                         # 'xlm-roberta-base' or "distilroberta-base" (XLM-RoBERTa, Distil Roberta)
-                                         # "google-bert/bert-base-cased" (mobileBert)
-        
+                                 # 'bert-base-uncased' (bert)
+                                 # 'bert-base-multilingual-cased' (mBERT)
+                                 # 'xlm-roberta-base' or "distilroberta-base" (XLM-RoBERTa, Distil Roberta)
+                                 # "google-bert/bert-base-cased" (mobileBert)
+
         random.seed(randnum)
         tf.random.set_seed(randnum)
         np.random.seed(randnum)
@@ -129,8 +128,8 @@ def run_training(hp, model_name):
 
         # Dataset split
         df = load_data('dataset/finaldataset_6k_shuffled_v2.csv')
-        train_df, test_df = train_test_split(df, test_size=0.2, random_state=randnum)
-        train_df, val_df = train_test_split(train_df, test_size=0.1, random_state=randnum)
+        train_df, test_df = train_test_split(df, test_size=0.1, random_state=randnum)
+        train_df, val_df = train_test_split(train_df, test_size=0.2, random_state=randnum)
         
         # Initialize tokenizer
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
@@ -243,7 +242,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, required=True)
     parser.add_argument("--batch_size", type=int, required=True)
     parser.add_argument("--model", type=str, required=True)
-    parser.add_argument("--exp_desc", type=str, required=False)
+    parser.add_argument("--exp_desc", type=str, required=False, default="oo")
     args = parser.parse_args()
 
     print(f"Learning Rate: {args.learning_rate}, Epochs: {args.epochs}, Batch Size: {args.batch_size} Model: {args.model} Exp Des: {args.exp_desc}")
@@ -258,7 +257,8 @@ if __name__ == "__main__":
     hyperparams = {
         "learning_rate": args.learning_rate,
         "epochs": args.epochs,
-        "batch_size": args.batch_size
+        "batch_size": args.batch_size,
+        "exp_desc" : args.exp_desc
     }
     
     run_training(hyperparams, args.model)
