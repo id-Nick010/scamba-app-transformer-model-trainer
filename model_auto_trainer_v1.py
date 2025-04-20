@@ -17,7 +17,7 @@ import random
 
 import argparse
 
-MAX_LENGTH = 150
+MAX_LENGTH = 100
 BATCH_SIZE = 64
 EPOCHS = 100
 
@@ -76,16 +76,16 @@ def prepare_datasets(train_df, val_df, test_df, tokenizer):
 
 def model_abbre(model_name):
     cases = {
-        "bert-base-uncased": "bert-base",
-        "bert-base-multilingual-cased": "mBERT",
+        "bert-base-uncased": "BertBase",
+        "bert-base-multilingual-cased": "MBERT",
         'xlm-roberta-base': 'XLM-RoBERTa' 
         #'google-bert/bert-base-cased': 'mobileBert'
     }
     return cases.get(model_name, "Model Unavailable")
     
 def run_training(hp, model_name):
-    mlflow.set_experiment("Second Evaluation")
-    run_name = f"{hp["exp_desc"]}_{model_abbre(model_name)}__lr{hp['learning_rate']}_ep{hp['epochs']}_bs{hp['batch_size']}"
+    mlflow.set_experiment("Third Final Evaluation")
+    run_name = f"{hp['exp_desc']}_{model_abbre(model_name)}__lr{hp['learning_rate']}_ep{hp['epochs']}_bs{hp['batch_size']}"
     with mlflow.start_run(run_name=run_name):
         mlflow.log_params(hp)
         mlflow.set_tag("model_name", model_name)
@@ -163,7 +163,7 @@ def run_training(hp, model_name):
         checkpoint_filepath = f"./checkpoints/{run_name}.h5"
         os.makedirs(os.path.dirname(checkpoint_filepath), exist_ok=True)
         callbacks = [
-            tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True),
+            tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True),
             tf.keras.callbacks.TensorBoard(log_dir='logs'),
             tf.keras.callbacks.ModelCheckpoint(
                 filepath=checkpoint_filepath,
